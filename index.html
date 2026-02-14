@@ -1,100 +1,200 @@
 <!doctype html>
 <html lang="zh">
 <head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Treasure Dive · Birthday Hunt</title>
+
+  <!-- Pixel font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
     :root{
-  --bg1:#071b2b;        /* deep ocean */
-  --bg2:#030914;        /* abyss */
-  --card: rgba(8, 26, 44, .78);
-  --line: rgba(84, 214, 255, .22);
+      /* Dave-the-Diver-ish vibe (ocean + neon) */
+      --bg1:#071b2b;        /* deep ocean */
+      --bg2:#030914;        /* abyss */
+      --card: rgba(8, 26, 44, .78);
+      --line: rgba(84, 214, 255, .22);
 
-  --text:#e9fbff;
-  --muted:#a9d7e6;
+      --text:#e9fbff;
+      --muted:#a9d7e6;
 
-  --accent:#59f0ff;     /* neon cyan */
-  --good:#35ff9a;       /* neon green */
-  --warn:#ffcc66;       /* warm gold */
-  --bad:#ff5d7a;        /* coral pink */
+      --accent:#59f0ff;     /* neon cyan */
+      --good:#35ff9a;       /* neon green */
+      --warn:#ffcc66;       /* warm gold */
+      --bad:#ff5d7a;        /* coral pink */
 
-  --shadow: 0 18px 50px rgba(0,0,0,.50);
-  --r: 14px;
-  --mono: "Press Start 2P", ui-monospace, monospace;
-  --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-}
+      --shadow: 0 18px 50px rgba(0,0,0,.50);
+      --r: 14px;
+      --mono: "Press Start 2P", ui-monospace, monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       min-height:100vh;
       color:var(--text);
       font-family:var(--sans);
-      background: radial-gradient(1200px 900px at 20% 10%, #0a335a 0%, var(--bg1) 45%, var(--bg2) 100%);
+      background:
+        radial-gradient(1200px 900px at 18% 10%, rgba(10,110,160,.45) 0%, rgba(7,27,43,.85) 45%, rgba(3,9,20,1) 100%),
+        radial-gradient(900px 700px at 85% 20%, rgba(89,240,255,.12) 0%, rgba(0,0,0,0) 60%);
       overflow-x:hidden;
     }
-    .app{ width:min(980px,100%); margin:0 auto; padding:16px 12px 26px; }
+
+    /* Subtle scanlines overlay for pixel vibe */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.03),
+        rgba(255,255,255,.03) 1px,
+        rgba(0,0,0,0) 3px,
+        rgba(0,0,0,0) 6px
+      );
+      mix-blend-mode: overlay;
+      opacity:.35;
+      z-index:0;
+    }
+
+    /* star/bubble specks */
+    body::after{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(89,240,255,.12) 0 1px, transparent 2px),
+        radial-gradient(circle at 60% 70%, rgba(255,204,102,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 80% 35%, rgba(53,255,154,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 30% 80%, rgba(89,240,255,.10) 0 1px, transparent 2px);
+      background-size: 280px 220px;
+      opacity:.55;
+      z-index:0;
+    }
+
+    .app{
+      position:relative;
+      z-index:1;
+      width:min(980px,100%);
+      margin:0 auto;
+      padding:16px 12px 26px;
+    }
+
     .top{
       display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
       padding:8px 6px 12px;
     }
-    .brand .t{ font-weight:950; letter-spacing:.3px; }
-    .brand .s{ color:var(--muted); font-size:12px; margin-top:3px; }
+
+    .brand .t{ font-weight:950; letter-spacing:.3px; font-family:var(--mono); }
+    .brand .s{ color:var(--muted); font-size:12px; margin-top:6px; line-height:1.35; }
+
+    /* 8-bit border helper */
+    .px-border{
+      border:2px solid rgba(84,214,255,.26);
+      box-shadow:
+        inset 0 0 0 2px rgba(0,0,0,.32),
+        0 10px 0 rgba(0,0,0,.22);
+    }
+
     .badge{
-      font-family:var(--mono); font-size:12px;
-      padding:6px 10px; border:1px solid var(--line);
-      border-radius:999px; color:var(--muted);
+      font-family:var(--mono);
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:10px;
+      color:var(--muted);
       background: rgba(10,28,45,.35);
       backdrop-filter: blur(6px);
+      border:2px solid rgba(84,214,255,.20);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
+
     .btn{
-      border:1px solid var(--line);
-      background: rgba(10,28,45,.45);
+      border:2px solid rgba(84,214,255,.22);
+      background: linear-gradient(180deg, rgba(15,55,85,.55), rgba(10,28,45,.45));
       color:var(--text);
       padding:10px 12px;
-      border-radius:12px;
+      border-radius:10px;
       cursor:pointer;
-      font-weight:850;
-      transition:.15s transform,.15s background;
+      font-family:var(--mono);
+      font-weight:950;
+      letter-spacing:.2px;
+      transition:.12s transform, .12s filter;
+      box-shadow:
+        inset 0 0 0 2px rgba(0,0,0,.28),
+        0 8px 0 rgba(0,0,0,.24);
+      position:relative;
     }
-    .btn:hover{ transform:translateY(-1px); background: rgba(20,60,95,.55); }
-    .btn:active{ transform:translateY(0px); }
-    .btn.primary{ border-color: rgba(111,227,255,.45); background: rgba(111,227,255,.14); }
-    .btn.danger{ border-color: rgba(255,111,140,.45); background: rgba(255,111,140,.12); }
+    .btn:hover{ transform:translateY(-1px); filter:brightness(1.04); }
+    .btn:active{
+      transform:translateY(2px);
+      box-shadow:
+        inset 0 0 0 2px rgba(0,0,0,.28),
+        0 6px 0 rgba(0,0,0,.20);
+    }
+    .btn.primary{
+      border-color: rgba(89,240,255,.38);
+      background: linear-gradient(180deg, rgba(89,240,255,.16), rgba(10,28,45,.45));
+    }
+    .btn.danger{
+      border-color: rgba(255,93,122,.40);
+      background: linear-gradient(180deg, rgba(255,93,122,.12), rgba(10,28,45,.45));
+    }
+
+    /* Pixel icon prefix for buttons (option 1) */
+    .btn::before{
+      content:"▸";
+      color: rgba(89,240,255,.85);
+      margin-right:8px;
+      display:inline-block;
+      transform: translateY(-1px);
+    }
+    .btn.danger::before{ content:"✕"; color: rgba(255,93,122,.9); }
+    .btn.primary::before{ content:"★"; color: rgba(255,204,102,.95); }
+    /* override for tiny nav buttons where icon looks too heavy */
+    #btnHome::before{ content:"⌂"; }
+    #btnReset::before{ content:"↺"; }
+
     .card{
       background: var(--card);
-      border:1px solid var(--line);
-      border-radius: var(--r);
+      border-radius: 12px;
       box-shadow: var(--shadow);
       overflow:hidden;
+      border:2px solid rgba(84,214,255,.18);
+      box-shadow:
+        0 18px 50px rgba(0,0,0,.50),
+        inset 0 0 0 2px rgba(0,0,0,.25);
     }
     .pad{ padding:16px; }
-    .hr{ height:1px; background: rgba(120,200,255,.18); margin:12px 0; }
+    .hr{ height:2px; background: rgba(84,214,255,.12); margin:12px 0; }
     .muted{ color:var(--muted); }
-    .h1{ font-size:26px; font-weight:950; margin:0; letter-spacing:.3px; }
-    .mini{ font-size:12px; color:var(--muted); line-height:1.4; }
+    .h1{ font-size:22px; font-weight:950; margin:0; letter-spacing:.3px; font-family:var(--mono); line-height:1.35; }
+    .mini{ font-size:12px; color:var(--muted); line-height:1.55; }
     .grid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:14px; }
     @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+
     .screen{ display:none; }
     .screen.active{ display:block; }
+
     .toast{
       position:fixed; left:50%; top:16px; transform:translateX(-50%);
       z-index:9999;
-      background: rgba(10,28,45,.90);
-      border:1px solid rgba(120,200,255,.25);
+      background: rgba(10,28,45,.92);
+      border:2px solid rgba(84,214,255,.22);
       padding:10px 12px;
-      border-radius:14px;
+      border-radius:12px;
       box-shadow: var(--shadow);
       display:none;
-      max-width: min(620px, 92vw);
-      font-weight:850;
+      max-width: min(640px, 92vw);
+      font-family:var(--mono);
+      font-weight:950;
+      line-height:1.35;
     }
     .toast.show{ display:block; }
-    .toast .subt{ display:block; font-weight:800; color:var(--muted); margin-top:4px; }
+    .toast .subt{ display:block; font-weight:900; color:var(--muted); margin-top:6px; font-family:var(--sans); }
 
     /* Quiz */
     .quizHead{
@@ -102,37 +202,70 @@
       margin-bottom:10px;
     }
     .pill{
-      font-family:var(--mono); font-size:12px;
-      padding:7px 10px; border:1px solid rgba(120,200,255,.25);
-      border-radius:999px; background: rgba(10,28,45,.35); color:var(--muted);
+      font-family:var(--mono);
+      font-size:11px;
+      padding:8px 10px;
+      border:2px solid rgba(84,214,255,.18);
+      border-radius:10px;
+      background: rgba(10,28,45,.35);
+      color:var(--muted);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
-    .qText{ font-size:18px; font-weight:950; margin: 8px 0 6px; }
-    .qText .en{ display:block; font-size:14px; font-weight:850; color:var(--muted); margin-top:6px; }
+    .qText{
+      font-size:16px;
+      font-family:var(--mono);
+      font-weight:950;
+      margin: 8px 0 6px;
+      line-height:1.55;
+    }
+    .qText .en{
+      display:block;
+      font-size:13px;
+      font-family:var(--sans);
+      font-weight:850;
+      color:var(--muted);
+      margin-top:10px;
+    }
     .answers{ display:grid; gap:10px; margin-top:12px; }
     .ans{
       text-align:left;
       width:100%;
       padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(120,200,255,.25);
-      background: rgba(10,28,45,.38);
+      border-radius:12px;
+      border:2px solid rgba(84,214,255,.18);
+      background: linear-gradient(180deg, rgba(15,55,85,.32), rgba(10,28,45,.40));
       color:var(--text);
       cursor:pointer;
-      font-weight:900;
-      transition:.15s transform,.15s background;
+      font-family:var(--mono);
+      font-weight:950;
+      transition:.12s transform,.12s filter;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
-    .ans:hover{ transform: translateY(-1px); background: rgba(20,60,95,.45); }
-    .ans small{ display:block; margin-top:4px; font-weight:800; color:var(--muted); }
-    .ans .key{ font-family:var(--mono); font-weight:950; margin-right:8px; color:var(--accent); }
+    .ans:hover{ transform: translateY(-1px); filter:brightness(1.04); }
+    .ans:active{ transform: translateY(2px); }
+    .ans small{
+      display:block;
+      margin-top:8px;
+      font-family:var(--sans);
+      font-weight:800;
+      color:var(--muted);
+    }
+    .ans .key{
+      font-family:var(--mono);
+      font-weight:950;
+      margin-right:10px;
+      color:var(--accent);
+    }
 
     /* Simple game canvas area */
     .stage{
-      border:1px solid rgba(120,200,255,.25);
-      border-radius:16px;
+      border:2px solid rgba(84,214,255,.18);
+      border-radius:12px;
       overflow:hidden;
       background: rgba(5,12,20,.55);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
-    canvas{ display:block; width:100%; height:auto; }
+    canvas{ display:block; width:100%; height:auto; image-rendering: pixelated; }
 
     .controls{
       display:flex; gap:10px; flex-wrap:wrap;
@@ -141,14 +274,17 @@
     .ctl{
       flex:1 1 120px;
       padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(120,200,255,.25);
-      background: rgba(10,28,45,.35);
-      font-weight:900;
+      border-radius:12px;
+      border:2px solid rgba(84,214,255,.18);
+      background: linear-gradient(180deg, rgba(15,55,85,.28), rgba(10,28,45,.36));
+      font-family:var(--mono);
+      font-weight:950;
       cursor:pointer;
       text-align:center;
       user-select:none;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
+    .ctl:active{ transform: translateY(2px); }
 
     /* Matching (Level 3) */
     .matchGrid{
@@ -157,45 +293,53 @@
     }
     @media (max-width:720px){ .matchGrid{ grid-template-columns:1fr; } }
     .photoCard{
-      border:1px solid rgba(120,200,255,.25);
-      border-radius:16px;
+      border:2px solid rgba(84,214,255,.18);
+      border-radius:12px;
       overflow:hidden;
-      background: rgba(10,28,45,.25);
+      background: rgba(10,28,45,.18);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.22);
     }
     .photoCard img{ width:100%; height:auto; display:block; max-height:40vh; object-fit:cover; }
     .photoCard .p{ padding:10px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
     select{
       padding:10px 10px;
-      border-radius:12px;
-      border:1px solid rgba(120,200,255,.25);
+      border-radius:10px;
+      border:2px solid rgba(84,214,255,.18);
       background: rgba(10,28,45,.55);
       color:var(--text);
-      font-weight:850;
+      font-family:var(--mono);
+      font-weight:950;
       min-width: 220px;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.22);
     }
 
     /* Puzzle (final) */
     .tileRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
     .tile{
       padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(120,200,255,.25);
-      background: rgba(10,28,45,.35);
+      border-radius:12px;
+      border:2px solid rgba(84,214,255,.18);
+      background: linear-gradient(180deg, rgba(15,55,85,.22), rgba(10,28,45,.30));
+      font-family:var(--mono);
       font-weight:950;
       cursor:grab;
       user-select:none;
-      font-size:20px;
+      font-size:18px;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
     }
     .slots{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     .slot{
       width:74px; height:74px;
-      border-radius:16px;
-      border:1px dashed rgba(111,227,255,.35);
+      border-radius:12px;
+      border:2px dashed rgba(89,240,255,.35);
       display:flex; align-items:center; justify-content:center;
-      font-weight:950; font-size:22px;
-      background: rgba(10,28,45,.25);
+      font-family:var(--mono);
+      font-weight:950; font-size:20px;
+      background: rgba(10,28,45,.18);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.22);
     }
-    .slot.filled{ border-style:solid; border-color: rgba(99,255,154,.45); background: rgba(99,255,154,.08); }
+    .slot.filled{ border-style:solid; border-color: rgba(53,255,154,.45); background: rgba(53,255,154,.06); }
   </style>
 </head>
 <body>
@@ -205,7 +349,7 @@
     <div class="top">
       <div class="brand">
         <div class="t">Treasure Dive · Birthday Hunt</div>
-        <div class="s">6 关寻宝 · 只给线索 </div>
+        <div class="s">6 关寻宝 · 只给线索 · 全程无密码（No passcode）</div>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <div class="badge" id="badge">Progress: 0/6</div>
@@ -218,7 +362,7 @@
     <div class="screen active" id="home">
       <div class="card pad">
         <h1 class="h1">Where are them? / 礼物在哪？</h1>
-        <div class="mini" style="margin-top:8px;">
+        <div class="mini" style="margin-top:10px;">
           规则：每关通关会给你一条线索。第一关必须全对，否则重来。<br/>
           Rule: each cleared level reveals one clue. Level 1 requires all-correct.
         </div>
@@ -231,7 +375,7 @@
 
       <div class="grid" style="margin-top:14px;">
         <div class="card pad">
-          <div style="font-weight:950; margin-bottom:8px;">Levels / 关卡</div>
+          <div style="font-family:var(--mono); font-weight:950; margin-bottom:10px;">Levels / 关卡</div>
           <div class="mini">
             Level 1：10 题限时选择题（必须全对）<br/>
             Level 2：可爱版俄罗斯方块（消除 5 行过关）<br/>
@@ -252,7 +396,7 @@
         </div>
 
         <div class="card pad">
-          <div style="font-weight:950; margin-bottom:8px;">Clues / 线索</div>
+          <div style="font-family:var(--mono); font-weight:950; margin-bottom:10px;">Clues / 线索</div>
           <div class="mini" id="cluesBox">No clues yet. / 还没线索。</div>
         </div>
       </div>
@@ -262,7 +406,7 @@
     <div class="screen" id="l1">
       <div class="card pad">
         <div class="quizHead">
-          <div style="font-weight:950;">Level 1 · Ten Questions / 十道题</div>
+          <div style="font-family:var(--mono); font-weight:950;">Level 1 · Ten Questions / 十道题</div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <div class="pill" id="l1q">Q 1 / 10</div>
             <div class="pill" id="l1t">Time: 80</div>
@@ -282,10 +426,10 @@
     <div class="screen" id="l2">
       <div class="card pad">
         <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-          <div style="font-weight:950;">Level 2 · Cute Tetris / 俄罗斯方块</div>
+          <div style="font-family:var(--mono); font-weight:950;">Level 2 · Cute Tetris / 俄罗斯方块</div>
           <div class="pill" id="tLines">Lines: 0 / 5</div>
         </div>
-        <div class="mini" style="margin-top:6px;">
+        <div class="mini" style="margin-top:10px;">
           消除 5 行通关。手机：用下面按钮控制。<br/>
           Clear 5 lines to pass. Use buttons below on iPhone.
         </div>
@@ -297,15 +441,15 @@
           <div class="ctl" onclick="tMove(1)">Right ▶</div>
           <div class="ctl" onclick="tDrop()">▼ Drop</div>
         </div>
-        <div class="mini muted" style="margin-top:10px;" id="tMsg"></div>
+        <div class="mini muted" style="margin-top:12px;" id="tMsg"></div>
       </div>
     </div>
 
     <!-- LEVEL 3: MATCH PHOTOS -->
     <div class="screen" id="l3">
       <div class="card pad">
-        <div style="font-weight:950;">Level 3 · Match / 连连看</div>
-        <div class="mini" style="margin-top:6px;">
+        <div style="font-family:var(--mono); font-weight:950;">Level 3 · Match / 连连看</div>
+        <div class="mini" style="margin-top:10px;">
           把 4 张照片选择到正确的旅行地点。全部正确通关。<br/>
           Match each photo to the correct place.
         </div>
@@ -317,7 +461,7 @@
           <button class="btn primary" onclick="checkMatch()">Submit / 提交</button>
           <button class="btn" onclick="goHome()">Back</button>
         </div>
-        <div class="mini muted" id="matchMsg" style="margin-top:10px;"></div>
+        <div class="mini muted" id="matchMsg" style="margin-top:12px;"></div>
       </div>
     </div>
 
@@ -325,10 +469,10 @@
     <div class="screen" id="l4">
       <div class="card pad">
         <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-          <div style="font-weight:950;">Level 4 · Pixel Pac / 像素吃豆人</div>
+          <div style="font-family:var(--mono); font-weight:950;">Level 4 · Pixel Pac / 像素吃豆人</div>
           <div class="pill" id="pDots">Dots: 0 / 20</div>
         </div>
-        <div class="mini" style="margin-top:6px;">
+        <div class="mini" style="margin-top:10px;">
           吃到 20 个豆子通关（简易版无怪）。<br/>
           Eat 20 dots to pass (no ghosts).
         </div>
@@ -340,7 +484,7 @@
           <div class="ctl" onclick="pMove(1,0)">▶</div>
           <div class="ctl" onclick="pMove(0,1)">▼</div>
         </div>
-        <div class="mini muted" id="pMsg" style="margin-top:10px;"></div>
+        <div class="mini muted" id="pMsg" style="margin-top:12px;"></div>
       </div>
     </div>
 
@@ -348,10 +492,10 @@
     <div class="screen" id="l5">
       <div class="card pad">
         <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-          <div style="font-weight:950;">Level 5 · Gold Miner / 黄金矿工</div>
+          <div style="font-family:var(--mono); font-weight:950;">Level 5 · Gold Miner / 黄金矿工</div>
           <div class="pill" id="gMoney">$0 / $500</div>
         </div>
-        <div class="mini" style="margin-top:6px;">
+        <div class="mini" style="margin-top:10px;">
           点击“Cast”甩钩，抓到金币加钱。达到 $500 通关。<br/>
           Tap Cast to grab coins. Reach $500 to pass.
         </div>
@@ -361,15 +505,15 @@
           <button class="btn primary" onclick="gCast()">Cast / 甩钩</button>
           <button class="btn" onclick="goHome()">Back</button>
         </div>
-        <div class="mini muted" id="gMsg" style="margin-top:10px;"></div>
+        <div class="mini muted" id="gMsg" style="margin-top:12px;"></div>
       </div>
     </div>
 
     <!-- LEVEL 6: PUZZLE -->
     <div class="screen" id="l6">
       <div class="card pad">
-        <div style="font-weight:950;">Final · Puzzle / 拼图</div>
-        <div class="mini" style="margin-top:6px;">
+        <div style="font-family:var(--mono); font-weight:950;">Final · Puzzle / 拼图</div>
+        <div class="mini" style="margin-top:10px;">
           把字符拖到正确位置，拼出“生日快乐”。完成后显示最终线索。<br/>
           Drag tiles into slots to form “生日快乐”.
         </div>
@@ -383,7 +527,7 @@
           <button class="btn" onclick="goHome()">Back</button>
         </div>
 
-        <div class="mini" id="finalMsg" style="margin-top:10px;"></div>
+        <div class="mini" id="finalMsg" style="margin-top:12px;"></div>
       </div>
     </div>
 
@@ -459,7 +603,7 @@ function syncHome(){
   if(state.clues.length===0){
     box.innerHTML = "No clues yet. / 还没线索。";
   }else{
-    box.innerHTML = state.clues.map((c,i)=>`<div style="margin:0 0 10px;"><b>Clue ${i+1}</b><br/>${escapeHtml(c)}</div>`).join("");
+    box.innerHTML = state.clues.map((c,i)=>`<div style="margin:0 0 12px;"><b style="font-family:var(--mono);">Clue ${i+1}</b><br/>${escapeHtml(c)}</div>`).join("");
   }
 }
 syncHome();
@@ -492,12 +636,10 @@ function completeLevel(n, clueText){
 }
 
 /* =======================
-   LEVEL 1: QUIZ (from PROCESS.docx)
-   - Must be all correct, else restart
+   LEVEL 1: QUIZ
 ======================= */
 const L1 = {
   time: 80,
-  // 10 questions from PROCESS.docx; parentheses indicate correct answers
   questions: [
     { cn:"are you excited?", en:"Are you excited?", correctText:"yes",
       wrong:["no","maybe"] },
@@ -561,7 +703,6 @@ function renderL1(){
         l1i++;
         if(l1i>=10){
           clearInterval(l1timer);
-          // clue 1 from PROCESS.docx
           completeLevel(1, "第一个线索：还记得你给我买的 Jimmy Choo 吗");
         }else{
           renderL1();
@@ -577,11 +718,10 @@ function renderL1(){
 
 /* =======================
    LEVEL 2: TETRIS (lite)
-   Clear 5 lines to pass
 ======================= */
 const t = {
   canvas: null, ctx:null,
-  cols:10, rows:20, cell:18,
+  cols:10, rows:20,
   board:[],
   cur:null,
   tick:0, speed:28,
@@ -589,7 +729,6 @@ const t = {
   running:false
 };
 const tetros = [
-  // I, O, T, S, Z, J, L
   [[1,1,1,1]],
   [[1,1],[1,1]],
   [[0,1,0],[1,1,1]],
@@ -606,6 +745,7 @@ function startTetris(){
   t.lines = 0;
   t.running = true;
   document.getElementById("tMsg").textContent = "";
+  document.getElementById("tLines").textContent = `Lines: ${t.lines} / 5`;
   spawnPiece();
   loopT();
 }
@@ -615,7 +755,7 @@ function spawnPiece(){
   t.cur = { shape, x: Math.floor((t.cols-shape[0].length)/2), y:0 };
   if(collide(t.cur.x,t.cur.y,t.cur.shape)){
     t.running=false;
-    document.getElementById("tMsg").textContent = "Game over. Tap Reset or revisit Level 2. / 结束了，重进第二关。";
+    document.getElementById("tMsg").textContent = "Game over. Re-enter Level 2 or Reset. / 结束了，重进第二关或重置。";
   }
 }
 function collide(x,y,shape){
@@ -664,30 +804,40 @@ function drawT(){
   const ctx=t.ctx;
   ctx.clearRect(0,0,t.canvas.width,t.canvas.height);
 
-  // scale to canvas size
   const w=t.canvas.width, h=t.canvas.height;
   const cell = Math.floor(Math.min(w/(t.cols+2), h/(t.rows+2)));
   const ox = Math.floor((w - cell*t.cols)/2);
   const oy = Math.floor((h - cell*t.rows)/2);
 
-  // board
+  // deep background
+  const bg = ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,"rgba(6,30,58,.70)");
+  bg.addColorStop(1,"rgba(2,8,18,.95)");
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,w,h);
+
   for(let r=0;r<t.rows;r++){
     for(let c=0;c<t.cols;c++){
-      ctx.strokeStyle="rgba(120,200,255,.15)";
+      ctx.strokeStyle="rgba(84,214,255,.12)";
       ctx.strokeRect(ox+c*cell, oy+r*cell, cell, cell);
       if(t.board[r][c]){
-        ctx.fillStyle="rgba(111,227,255,.35)";
+        ctx.fillStyle="rgba(89,240,255,.25)";
         ctx.fillRect(ox+c*cell+1, oy+r*cell+1, cell-2, cell-2);
+        ctx.fillStyle="rgba(255,255,255,.10)";
+        ctx.fillRect(ox+c*cell+2, oy+r*cell+2, Math.floor(cell*0.35), Math.floor(cell*0.35));
       }
     }
   }
-  // piece
+
   const {x,y,shape}=t.cur;
-  ctx.fillStyle="rgba(99,255,154,.35)";
+  ctx.fillStyle="rgba(53,255,154,.22)";
   for(let r=0;r<shape.length;r++){
     for(let c=0;c<shape[r].length;c++){
       if(shape[r][c]){
         ctx.fillRect(ox+(x+c)*cell+1, oy+(y+r)*cell+1, cell-2, cell-2);
+        ctx.fillStyle="rgba(255,255,255,.12)";
+        ctx.fillRect(ox+(x+c)*cell+2, oy+(y+r)*cell+2, Math.floor(cell*0.35), Math.floor(cell*0.35));
+        ctx.fillStyle="rgba(53,255,154,.22)";
       }
     }
   }
@@ -733,12 +883,7 @@ function tDrop(){
 }
 
 /* =======================
-   LEVEL 3: MATCH PHOTOS to locations
-   from PROCESS.docx:
-   photo1 Las Vegas
-   photo2 Los Angelas
-   photo3 Miami
-   photo4 San Antonio
+   LEVEL 3: MATCH PHOTOS
 ======================= */
 const places = ["Las Vegas","Los Angelas","Miami","San Antonio"];
 const correctMap = {
@@ -758,7 +903,7 @@ function startMatch(){
     card.innerHTML=`
       <img src="images/${pid}.jpg" alt="${pid}">
       <div class="p">
-        <div style="font-weight:950;">Photo ${idx+1}</div>
+        <div style="font-family:var(--mono); font-weight:950;">Photo ${idx+1}</div>
         <select id="sel_${pid}">
           <option value="">Select / 选择</option>
           ${places.map(p=>`<option value="${p}">${p}</option>`).join("")}
@@ -784,7 +929,7 @@ function checkMatch(){
 }
 
 /* =======================
-   LEVEL 4: PAC-LITE (eat 20 dots)
+   LEVEL 4: PAC-LITE
 ======================= */
 const p = {
   canvas:null, ctx:null,
@@ -803,7 +948,6 @@ function startPac(){
   document.getElementById("pDots").textContent = `Dots: 0 / ${p.goal}`;
   document.getElementById("pMsg").textContent = "";
 
-  // place dots randomly
   for(let i=0;i<35;i++){
     const dx=Math.floor(Math.random()*p.grid);
     const dy=Math.floor(Math.random()*p.grid);
@@ -832,17 +976,24 @@ function drawPac(){
   const ctx=p.ctx;
   const w=p.canvas.width, h=p.canvas.height;
   ctx.clearRect(0,0,w,h);
+
+  const bg = ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,"rgba(6,30,58,.65)");
+  bg.addColorStop(1,"rgba(2,8,18,.95)");
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,w,h);
+
   const cell=Math.floor(w/p.grid);
 
-  // grid
   for(let r=0;r<p.grid;r++){
     for(let c=0;c<p.grid;c++){
-      ctx.strokeStyle="rgba(120,200,255,.10)";
+      ctx.strokeStyle="rgba(84,214,255,.10)";
       ctx.strokeRect(c*cell, r*cell, cell, cell);
     }
   }
+
   // dots
-  ctx.fillStyle="rgba(111,227,255,.55)";
+  ctx.fillStyle="rgba(89,240,255,.55)";
   p.dots.forEach(s=>{
     const [cx,cy]=s.split(",").map(Number);
     ctx.beginPath();
@@ -851,21 +1002,23 @@ function drawPac(){
   });
 
   // player
-  ctx.fillStyle="rgba(99,255,154,.75)";
+  ctx.fillStyle="rgba(53,255,154,.75)";
   ctx.beginPath();
   ctx.arc(p.x*cell+cell/2, p.y*cell+cell/2, Math.floor(cell*0.35), 0, Math.PI*2);
   ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.10)";
+  ctx.fillRect(p.x*cell+4, p.y*cell+4, 10, 10);
 }
 
 /* =======================
-   LEVEL 5: GOLD MINER (lite)
-   Reach $500
+   LEVEL 5: GOLD MINER (enhanced visuals)
 ======================= */
 const g = {
   canvas:null, ctx:null,
   money:0, goal:500,
   coins:[],
-  hook:{x:180,y:60,angle:0,dir:1,len:40,state:"swing"}, // state: swing/extend/retract
+  bubbles:[],
+  hook:{x:180,y:60,angle:0,dir:1,len:40,state:"swing"},
   hit:null
 };
 function startGold(){
@@ -877,12 +1030,20 @@ function startGold(){
   g.hook={x:180,y:60,angle:0,dir:1,len:40,state:"swing"};
   g.hit=null;
   g.coins=[];
-  // random coins
+
+  // bubbles
+  g.bubbles = Array.from({length: 24}, ()=>({
+    x: Math.random()*360,
+    y: 420 + Math.random()*240,
+    r: 2 + Math.random()*4,
+    s: 0.4 + Math.random()*1.2
+  }));
+
   for(let i=0;i<8;i++){
     g.coins.push({
       x:40+Math.random()*280,
-      y:160+Math.random()*220,
-      v: 50 + Math.floor(Math.random()*150),
+      y:170+Math.random()*220,
+      v: 60 + Math.floor(Math.random()*170),
       r: 10 + Math.random()*12
     });
   }
@@ -906,7 +1067,6 @@ function stepGold(){
     if(h.angle<-0.9) h.dir=1;
   }else if(h.state==="extend"){
     h.len += 6;
-    // collision check
     const tip = hookTip();
     for(const c of g.coins){
       const dx=tip.x-c.x, dy=tip.y-c.y;
@@ -927,11 +1087,22 @@ function stepGold(){
         g.coins = g.coins.filter(x=>x!==g.hit);
         g.hit=null;
         document.getElementById("gMoney").textContent = `$${g.money} / $${g.goal}`;
-        toast("+$"+g.money, "赚钱了");
+        toast("Nice catch!", "抓到了");
         if(g.money>=g.goal){
-          completeLevel(5, "凭借你对我的了解，在家里多找找看吧！");
+          // UPDATED CLUE (your requested text)
+          completeLevel(5, "第五个线索：凭借你对我的了解，在家里多找找看吧！");
         }
       }
+    }
+  }
+
+  // bubbles rise
+  for(const b of g.bubbles){
+    b.y -= b.s;
+    b.x += Math.sin((b.y/30)) * 0.15;
+    if(b.y < -10){
+      b.y = 420 + Math.random()*120;
+      b.x = Math.random()*360;
     }
   }
 }
@@ -944,49 +1115,111 @@ function hookTip(){
 }
 function drawGold(){
   const ctx=g.ctx;
-  const w=g.canvas.width, h=g.canvas.height;
-  ctx.clearRect(0,0,w,h);
+  const W=g.canvas.width, H=g.canvas.height;
+  ctx.clearRect(0,0,W,H);
 
-  // background
-  ctx.fillStyle="rgba(10,28,45,.25)";
-  ctx.fillRect(0,0,w,h);
+  // Deep-sea gradient background
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, "rgba(6,30,58,0.95)");
+  grad.addColorStop(0.55, "rgba(3,16,34,0.98)");
+  grad.addColorStop(1, "rgba(2,8,18,1)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
 
-  // coins
+  // faint light beam
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  const beam = ctx.createRadialGradient(g.hook.x, g.hook.y, 10, g.hook.x, g.hook.y, 260);
+  beam.addColorStop(0, "rgba(89,240,255,0.40)");
+  beam.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = beam;
+  ctx.beginPath();
+  ctx.arc(g.hook.x, g.hook.y, 260, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // bubbles
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  for(const b of g.bubbles){
+    ctx.strokeStyle = "rgba(160,240,255,0.55)";
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // seabed
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillRect(0, H-44, W, 44);
+  ctx.fillStyle = "rgba(255,255,255,0.04)";
+  for(let i=0;i<28;i++){
+    ctx.fillRect(i*14, H-44 + (i%3)*7, 10, 3);
+  }
+
+  // coins with shimmer
+  const tNow = performance.now()/700;
   for(const c of g.coins){
-    ctx.fillStyle="rgba(255,211,111,.65)";
+    const shimmer = 0.35 + 0.25*Math.sin(tNow + c.x*0.02);
+
+    // coin body
+    ctx.fillStyle="rgba(255,204,102,0.82)";
     ctx.beginPath();
     ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
     ctx.fill();
-    ctx.fillStyle="rgba(0,0,0,.35)";
-    ctx.font="12px "+getComputedStyle(document.body).fontFamily;
-    ctx.fillText("$"+c.v, c.x-c.r, c.y+c.r+12);
+
+    // rim
+    ctx.strokeStyle="rgba(255,235,190,0.55)";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.arc(c.x,c.y,c.r-1,0,Math.PI*2);
+    ctx.stroke();
+
+    // highlight
+    ctx.fillStyle=`rgba(255,255,255,${shimmer})`;
+    ctx.beginPath();
+    ctx.arc(c.x - c.r*0.25, c.y - c.r*0.25, Math.max(2,c.r*0.25), 0, Math.PI*2);
+    ctx.fill();
+
+    // value tag
+    ctx.fillStyle="rgba(0,0,0,0.35)";
+    ctx.font="10px 'Press Start 2P', ui-monospace, monospace";
+    ctx.fillText("$"+c.v, c.x - c.r, c.y + c.r + 14);
   }
 
   // hook line
   const tip=hookTip();
-  ctx.strokeStyle="rgba(111,227,255,.65)";
+  ctx.strokeStyle="rgba(89,240,255,0.75)";
   ctx.lineWidth=2;
   ctx.beginPath();
   ctx.moveTo(g.hook.x,g.hook.y);
   ctx.lineTo(tip.x,tip.y);
   ctx.stroke();
 
-  // hook tip
-  ctx.fillStyle="rgba(111,227,255,.85)";
+  // hook head
+  ctx.fillStyle="rgba(89,240,255,0.95)";
   ctx.beginPath();
   ctx.arc(tip.x,tip.y,6,0,Math.PI*2);
   ctx.fill();
 
-  // diver icon (simple)
-  ctx.fillStyle="rgba(99,255,154,.55)";
+  // hook claw
+  ctx.strokeStyle="rgba(255,255,255,0.55)";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(tip.x-6, tip.y+6);
+  ctx.lineTo(tip.x, tip.y+12);
+  ctx.lineTo(tip.x+6, tip.y+6);
+  ctx.stroke();
+
+  // diver (pixel-ish block)
+  ctx.fillStyle="rgba(53,255,154,0.65)";
   ctx.fillRect(g.hook.x-12, g.hook.y-18, 24, 24);
-  ctx.fillStyle="rgba(0,0,0,.25)";
+  ctx.fillStyle="rgba(0,0,0,0.35)";
   ctx.fillRect(g.hook.x-8, g.hook.y-12, 16, 8);
 }
 
 /* =======================
    LEVEL 6: FINAL PUZZLE
-   Drag tiles to slots => “生日快乐”
 ======================= */
 const finalWord = ["生","日","快","乐"];
 let finalSlots = ["","","",""];
@@ -1003,7 +1236,6 @@ function renderFinal(){
   tilesEl.innerHTML="";
   slotsEl.innerHTML="";
 
-  // tiles (shuffled)
   const tiles = [...finalWord].sort(()=>Math.random()-0.5);
   tiles.forEach(ch=>{
     const t=document.createElement("div");
@@ -1036,8 +1268,8 @@ function checkFinal(){
     state.clues.push("最终线索：完成寻宝后，去你最熟悉的地方把礼物拿出来。然后等我带蛋糕回家。");
     save();
     document.getElementById("finalMsg").innerHTML =
-      `<div style="font-weight:950; font-size:22px; color: var(--good);">生日快乐</div>
-       <div class="mini" style="margin-top:8px;">
+      `<div style="font-family:var(--mono); font-weight:950; font-size:20px; color: var(--good); line-height:1.5;">生日快乐</div>
+       <div class="mini" style="margin-top:10px;">
          最终线索已解锁（已写进 Home 的 Clues）<br/>
          Final clue unlocked (see Home → Clues)
        </div>`;
@@ -1050,12 +1282,7 @@ function checkFinal(){
 /* =======================
    INIT
 ======================= */
-function nextIfAny(){ return state.last || nextLevel(); }
-
-(function init(){
-  syncHome();
-})();
+(function init(){ syncHome(); })();
 </script>
 </body>
 </html>
-
