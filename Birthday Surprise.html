@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Treasure Dive · Birthday Hunt</title>
+  <style>
+    :root{
+      --bg1:#061524; --bg2:#040b12;
+      --card: rgba(9, 30, 52, .78);
+      --line: rgba(120, 200, 255, .25);
+      --text:#eaf4ff; --muted:#b9c9e6;
+      --accent:#6fe3ff; --good:#63ff9a; --bad:#ff6f8c; --warn:#ffd36f;
+      --shadow: 0 16px 44px rgba(0,0,0,.45);
+      --r: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:var(--sans);
+      background: radial-gradient(1200px 900px at 20% 10%, #0a335a 0%, var(--bg1) 45%, var(--bg2) 100%);
+      overflow-x:hidden;
+    }
+    .app{ width:min(980px,100%); margin:0 auto; padding:16px 12px 26px; }
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      padding:8px 6px 12px;
+    }
+    .brand .t{ font-weight:950; letter-spacing:.3px; }
+    .brand .s{ color:var(--muted); font-size:12px; margin-top:3px; }
+    .badge{
+      font-family:var(--mono); font-size:12px;
+      padding:6px 10px; border:1px solid var(--line);
+      border-radius:999px; color:var(--muted);
+      background: rgba(10,28,45,.35);
+      backdrop-filter: blur(6px);
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(10,28,45,.45);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:850;
+      transition:.15s transform,.15s background;
+    }
+    .btn:hover{ transform:translateY(-1px); background: rgba(20,60,95,.55); }
+    .btn:active{ transform:translateY(0px); }
+    .btn.primary{ border-color: rgba(111,227,255,.45); background: rgba(111,227,255,.14); }
+    .btn.danger{ border-color: rgba(255,111,140,.45); background: rgba(255,111,140,.12); }
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .pad{ padding:16px; }
+    .hr{ height:1px; background: rgba(120,200,255,.18); margin:12px 0; }
+    .muted{ color:var(--muted); }
+    .h1{ font-size:26px; font-weight:950; margin:0; letter-spacing:.3px; }
+    .mini{ font-size:12px; color:var(--muted); line-height:1.4; }
+    .grid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:14px; }
+    @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+    .toast{
+      position:fixed; left:50%; top:16px; transform:translateX(-50%);
+      z-index:9999;
+      background: rgba(10,28,45,.90);
+      border:1px solid rgba(120,200,255,.25);
+      padding:10px 12px;
+      border-radius:14px;
+      box-shadow: var(--shadow);
+      display:none;
+      max-width: min(620px, 92vw);
+      font-weight:850;
+    }
+    .toast.show{ display:block; }
+    .toast .subt{ display:block; font-weight:800; color:var(--muted); margin-top:4px; }
+
+    /* Quiz */
+    .quizHead{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .pill{
+      font-family:var(--mono); font-size:12px;
+      padding:7px 10px; border:1px solid rgba(120,200,255,.25);
+      border-radius:999px; background: rgba(10,28,45,.35); color:var(--muted);
+    }
+    .qText{ font-size:18px; font-weight:950; margin: 8px 0 6px; }
+    .qText .en{ display:block; font-size:14px; font-weight:850; color:var(--muted); margin-top:6px; }
+    .answers{ display:grid; gap:10px; margin-top:12px; }
+    .ans{
+      text-align:left;
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(120,200,255,.25);
+      background: rgba(10,28,45,.38);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:900;
+      transition:.15s transform,.15s background;
+    }
+    .ans:hover{ transform: translateY(-1px); background: rgba(20,60,95,.45); }
+    .ans small{ display:block; margin-top:4px; font-weight:800; color:var(--muted); }
+    .ans .key{ font-family:var(--mono); font-weight:950; margin-right:8px; color:var(--accent); }
+
+    /* Simple game canvas area */
+    .stage{
+      border:1px solid rgba(120,200,255,.25);
+      border-radius:16px;
+      overflow:hidden;
+      background: rgba(5,12,20,.55);
+    }
+    canvas{ display:block; width:100%; height:auto; }
+
+    .controls{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .ctl{
+      flex:1 1 120px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(120,200,255,.25);
+      background: rgba(10,28,45,.35);
+      font-weight:900;
+      cursor:pointer;
+      text-align:center;
+      user-select:none;
+    }
+
+    /* Matching (Level 3) */
+    .matchGrid{
+      display:grid; grid-template-columns: repeat(2, 1fr);
+      gap:12px;
+    }
+    @media (max-width:720px){ .matchGrid{ grid-template-columns:1fr; } }
+    .photoCard{
+      border:1px solid rgba(120,200,255,.25);
+      border-radius:16px;
+      overflow:hidden;
+      background: rgba(10,28,45,.25);
+    }
+    .photoCard img{ width:100%; height:auto; display:block; max-height:40vh; object-fit:cover; }
+    .photoCard .p{ padding:10px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    select{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(120,200,255,.25);
+      background: rgba(10,28,45,.55);
+      color:var(--text);
+      font-weight:850;
+      min-width: 220px;
+    }
+
+    /* Puzzle (final) */
+    .tileRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .tile{
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(120,200,255,.25);
+      background: rgba(10,28,45,.35);
+      font-weight:950;
+      cursor:grab;
+      user-select:none;
+      font-size:20px;
+    }
+    .slots{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .slot{
+      width:74px; height:74px;
+      border-radius:16px;
+      border:1px dashed rgba(111,227,255,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:950; font-size:22px;
+      background: rgba(10,28,45,.25);
+    }
+    .slot.filled{ border-style:solid; border-color: rgba(99,255,154,.45); background: rgba(99,255,154,.08); }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div class="app">
+    <div class="top">
+      <div class="brand">
+        <div class="t">Treasure Dive · Birthday Hunt</div>
+        <div class="s">6 关寻宝 · 只给线索 · 全程无密码（No passcode）</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div class="badge" id="badge">Progress: 0/6</div>
+        <button class="btn" id="btnHome">Home</button>
+        <button class="btn danger" id="btnReset">Reset</button>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="screen active" id="home">
+      <div class="card pad">
+        <h1 class="h1">Where are them? / 礼物在哪？</h1>
+        <div class="mini" style="margin-top:8px;">
+          规则：每关通关会给你一条线索。第一关必须全对，否则重来。<br/>
+          Rule: each cleared level reveals one clue. Level 1 requires all-correct.
+        </div>
+        <div class="hr"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="goLevel(1)">Start Level 1</button>
+          <button class="btn" id="btnContinue">Continue</button>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:14px;">
+        <div class="card pad">
+          <div style="font-weight:950; margin-bottom:8px;">Levels / 关卡</div>
+          <div class="mini">
+            Level 1：10 题限时选择题（必须全对）<br/>
+            Level 2：可爱版俄罗斯方块（消除 5 行过关）<br/>
+            Level 3：连连看（把照片选到正确地点）<br/>
+            Level 4：像素吃豆人（吃够豆子过关）<br/>
+            Level 5：黄金矿工（目标金额 $500）<br/>
+            Level 6：拼图（拼出“生日快乐”）
+          </div>
+          <div class="hr"></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" onclick="goLevel(1)">L1</button>
+            <button class="btn" onclick="goLevel(2)">L2</button>
+            <button class="btn" onclick="goLevel(3)">L3</button>
+            <button class="btn" onclick="goLevel(4)">L4</button>
+            <button class="btn" onclick="goLevel(5)">L5</button>
+            <button class="btn" onclick="goLevel(6)">L6</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div style="font-weight:950; margin-bottom:8px;">Clues / 线索</div>
+          <div class="mini" id="cluesBox">No clues yet. / 还没线索。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL 1 -->
+    <div class="screen" id="l1">
+      <div class="card pad">
+        <div class="quizHead">
+          <div style="font-weight:950;">Level 1 · Ten Questions / 十道题</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="pill" id="l1q">Q 1 / 10</div>
+            <div class="pill" id="l1t">Time: 80</div>
+            <div class="pill" id="l1score">Correct: 0</div>
+          </div>
+        </div>
+        <div class="qText" id="l1text"></div>
+        <div class="answers" id="l1ans"></div>
+        <div class="mini muted" style="margin-top:12px;">
+          必须全对才能拿到第一个线索；答错直接重来。<br/>
+          Must be all-correct. One wrong answer = restart.
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL 2: TETRIS -->
+    <div class="screen" id="l2">
+      <div class="card pad">
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div style="font-weight:950;">Level 2 · Cute Tetris / 俄罗斯方块</div>
+          <div class="pill" id="tLines">Lines: 0 / 5</div>
+        </div>
+        <div class="mini" style="margin-top:6px;">
+          消除 5 行通关。手机：用下面按钮控制。<br/>
+          Clear 5 lines to pass. Use buttons below on iPhone.
+        </div>
+        <div class="hr"></div>
+        <div class="stage"><canvas id="tCanvas" width="360" height="540"></canvas></div>
+        <div class="controls">
+          <div class="ctl" onclick="tMove(-1)">◀ Left</div>
+          <div class="ctl" onclick="tRotate()">⟲ Rotate</div>
+          <div class="ctl" onclick="tMove(1)">Right ▶</div>
+          <div class="ctl" onclick="tDrop()">▼ Drop</div>
+        </div>
+        <div class="mini muted" style="margin-top:10px;" id="tMsg"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL 3: MATCH PHOTOS -->
+    <div class="screen" id="l3">
+      <div class="card pad">
+        <div style="font-weight:950;">Level 3 · Match / 连连看</div>
+        <div class="mini" style="margin-top:6px;">
+          把 4 张照片选择到正确的旅行地点。全部正确通关。<br/>
+          Match each photo to the correct place.
+        </div>
+        <div class="hr"></div>
+
+        <div class="matchGrid" id="matchGrid"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn primary" onclick="checkMatch()">Submit / 提交</button>
+          <button class="btn" onclick="goHome()">Back</button>
+        </div>
+        <div class="mini muted" id="matchMsg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL 4: PACMAN-LITE -->
+    <div class="screen" id="l4">
+      <div class="card pad">
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div style="font-weight:950;">Level 4 · Pixel Pac / 像素吃豆人</div>
+          <div class="pill" id="pDots">Dots: 0 / 20</div>
+        </div>
+        <div class="mini" style="margin-top:6px;">
+          吃到 20 个豆子通关（简易版无怪）。<br/>
+          Eat 20 dots to pass (no ghosts).
+        </div>
+        <div class="hr"></div>
+        <div class="stage"><canvas id="pCanvas" width="360" height="360"></canvas></div>
+        <div class="controls">
+          <div class="ctl" onclick="pMove(0,-1)">▲</div>
+          <div class="ctl" onclick="pMove(-1,0)">◀</div>
+          <div class="ctl" onclick="pMove(1,0)">▶</div>
+          <div class="ctl" onclick="pMove(0,1)">▼</div>
+        </div>
+        <div class="mini muted" id="pMsg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL 5: GOLD MINER-LITE -->
+    <div class="screen" id="l5">
+      <div class="card pad">
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div style="font-weight:950;">Level 5 · Gold Miner / 黄金矿工</div>
+          <div class="pill" id="gMoney">$0 / $500</div>
+        </div>
+        <div class="mini" style="margin-top:6px;">
+          点击“Cast”甩钩，抓到金币加钱。达到 $500 通关。<br/>
+          Tap Cast to grab coins. Reach $500 to pass.
+        </div>
+        <div class="hr"></div>
+        <div class="stage"><canvas id="gCanvas" width="360" height="420"></canvas></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn primary" onclick="gCast()">Cast / 甩钩</button>
+          <button class="btn" onclick="goHome()">Back</button>
+        </div>
+        <div class="mini muted" id="gMsg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL 6: PUZZLE -->
+    <div class="screen" id="l6">
+      <div class="card pad">
+        <div style="font-weight:950;">Final · Puzzle / 拼图</div>
+        <div class="mini" style="margin-top:6px;">
+          把字符拖到正确位置，拼出“生日快乐”。完成后显示最终线索。<br/>
+          Drag tiles into slots to form “生日快乐”.
+        </div>
+        <div class="hr"></div>
+
+        <div class="tileRow" id="tiles"></div>
+        <div class="slots" id="slots"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn primary" onclick="checkFinal()">Check / 检查</button>
+          <button class="btn" onclick="goHome()">Back</button>
+        </div>
+
+        <div class="mini" id="finalMsg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/* =======================
+   STATE
+======================= */
+const STORAGE = "birthday_hunt_no_passcode_v1";
+let state = load() || {
+  levelDone: {1:false,2:false,3:false,4:false,5:false,6:false},
+  clues: [],
+  last: 0
+};
+
+function save(){ localStorage.setItem(STORAGE, JSON.stringify(state)); syncHome(); }
+function load(){ try{ return JSON.parse(localStorage.getItem(STORAGE)); }catch(e){ return null; } }
+function resetAll(){
+  localStorage.removeItem(STORAGE);
+  state = { levelDone:{1:false,2:false,3:false,4:false,5:false,6:false}, clues:[], last:0 };
+  toast("Reset done.", "已重置");
+  goHome();
+  syncHome();
+}
+
+/* =======================
+   NAV
+======================= */
+const screens = {
+  home: document.getElementById("home"),
+  1: document.getElementById("l1"),
+  2: document.getElementById("l2"),
+  3: document.getElementById("l3"),
+  4: document.getElementById("l4"),
+  5: document.getElementById("l5"),
+  6: document.getElementById("l6"),
+};
+function show(key){
+  Object.values(screens).forEach(s=>s.classList.remove("active"));
+  screens[key].classList.add("active");
+  window.scrollTo({top:0, behavior:"instant"});
+}
+function goHome(){ show("home"); state.last=0; save(); }
+function goLevel(n){
+  state.last=n; save();
+  show(n);
+  if(n===1) startL1();
+  if(n===2) startTetris();
+  if(n===3) startMatch();
+  if(n===4) startPac();
+  if(n===5) startGold();
+  if(n===6) startFinal();
+}
+
+document.getElementById("btnHome").onclick = goHome;
+document.getElementById("btnReset").onclick = resetAll;
+document.getElementById("btnContinue").onclick = ()=>{
+  const next = state.last || nextLevel();
+  goLevel(next);
+};
+
+function doneCount(){
+  return Object.values(state.levelDone).filter(Boolean).length;
+}
+function nextLevel(){
+  for(let i=1;i<=6;i++) if(!state.levelDone[i]) return i;
+  return 6;
+}
+function syncHome(){
+  document.getElementById("badge").textContent = `Progress: ${doneCount()}/6`;
+  const box = document.getElementById("cluesBox");
+  if(state.clues.length===0){
+    box.innerHTML = "No clues yet. / 还没线索。";
+  }else{
+    box.innerHTML = state.clues.map((c,i)=>`<div style="margin:0 0 10px;"><b>Clue ${i+1}</b><br/>${escapeHtml(c)}</div>`).join("");
+  }
+}
+syncHome();
+
+/* =======================
+   TOAST
+======================= */
+const toastEl = document.getElementById("toast");
+let toastTimer = null;
+function toast(main, sub=""){
+  toastEl.innerHTML = `${escapeHtml(main)}${sub?`<span class="subt">${escapeHtml(sub)}</span>`:""}`;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove("show"), 2200);
+}
+function escapeHtml(str){
+  return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+}
+
+/* =======================
+   COMPLETE LEVEL
+======================= */
+function completeLevel(n, clueText){
+  if(state.levelDone[n]) return;
+  state.levelDone[n]=true;
+  if(clueText) state.clues.push(clueText);
+  save();
+  toast(`Level ${n} cleared`, `第${n}关已通关`);
+  goHome();
+}
+
+/* =======================
+   LEVEL 1: QUIZ (from PROCESS.docx)
+   - Must be all correct, else restart
+======================= */
+const L1 = {
+  time: 80,
+  // 10 questions from PROCESS.docx; parentheses indicate correct answers
+  questions: [
+    { cn:"are you excited?", en:"Are you excited?", correctText:"yes",
+      wrong:["no","maybe"] },
+    { cn:"ready?", en:"Ready?", correctText:"yes",
+      wrong:["no","let me think"] },
+    { cn:"当你看到我在偷偷准备惊喜时，我想要你", en:"When you notice I'm secretly preparing a surprise, I want you to…", correctText:"装作不知道",
+      wrong:["立刻拆穿","假装没看见但一直偷笑(太明显)"] },
+    { cn:"当一个提示被刻意隐藏时，你应该", en:"When a hint is intentionally hidden, you should…", correctText:"主动去找线索",
+      wrong:["等它自己出现","直接放弃"] },
+    { cn:"我俩之前，谁更擅长嘴上否认，实际真香？", en:"Between us, who denies it verbally but ends up loving it?", correctText:"都一样明显",
+      wrong:["你","我"] },
+    { cn:"当家里过于整洁，并且某一个空间闪闪亮亮，你的反应是", en:"If the home is too clean and one spot is suspiciously shiny, your reaction is…", correctText:"妈呀宝宝好辛苦",
+      wrong:["你动了什么手脚","这很正常(不可能)"] },
+    { cn:"如果我说今晚有安排，但咩细说，你会", en:"If I say I have plans tonight but don’t explain, you will…", correctText:"放在心里，默默准备",
+      wrong:["装作不在乎","立刻走开"] },
+    { cn:"当我说its fine的时候，其实是", en:"When I say 'it's fine', it actually means…", correctText:"是时候关心关心啦",
+      wrong:["真的fine","你可以继续打游戏"] },
+    { cn:"当你意识到今天不普通时，你会", en:"When you realize today is not ordinary, you will…", correctText:"直接问",
+      wrong:["假装不知道","沉默观察到天亮"] },
+    { cn:"如果最终答案需要你找到很多线索， 你应该", en:"If the final answer requires many clues, you should…", correctText:"相信自己",
+      wrong:["怀疑人生","把手机扔了"] },
+  ]
+};
+
+let l1i=0, l1time=0, l1timer=null;
+function startL1(){
+  l1i=0;
+  l1time=L1.time;
+  clearInterval(l1timer);
+  l1timer=setInterval(()=>{
+    l1time--;
+    document.getElementById("l1t").textContent = `Time: ${l1time}`;
+    if(l1time<=0){
+      clearInterval(l1timer);
+      toast("Time's up.", "超时了，重来");
+      startL1();
+    }
+  },1000);
+  renderL1();
+}
+function renderL1(){
+  document.getElementById("l1q").textContent = `Q ${l1i+1} / 10`;
+  document.getElementById("l1t").textContent = `Time: ${l1time}`;
+  document.getElementById("l1score").textContent = `Correct: ${l1i}`;
+  const q = L1.questions[l1i];
+
+  document.getElementById("l1text").innerHTML =
+    `${escapeHtml(q.cn)}<span class="en">${escapeHtml(q.en)}</span>`;
+
+  const opts = [q.correctText, ...q.wrong].sort(()=>Math.random()-0.5);
+  const keys = ["A","B","C"];
+  const ans = document.getElementById("l1ans");
+  ans.innerHTML="";
+  opts.forEach((txt,idx)=>{
+    const b=document.createElement("button");
+    b.className="ans";
+    b.innerHTML=`<span class="key">${keys[idx]}</span>${escapeHtml(txt)}<small>${escapeHtml(txt)}</small>`;
+    b.onclick=()=>{
+      if(txt===q.correctText){
+        toast("Correct.", "✅ 正确");
+        l1i++;
+        if(l1i>=10){
+          clearInterval(l1timer);
+          // clue 1 from PROCESS.docx
+          completeLevel(1, "第一个线索：还记得你给我买的 Jimmy Choo 吗");
+        }else{
+          renderL1();
+        }
+      }else{
+        toast("Wrong. Restart.", "❌ 错了，全部重来");
+        startL1();
+      }
+    };
+    ans.appendChild(b);
+  });
+}
+
+/* =======================
+   LEVEL 2: TETRIS (lite)
+   Clear 5 lines to pass
+======================= */
+const t = {
+  canvas: null, ctx:null,
+  cols:10, rows:20, cell:18,
+  board:[],
+  cur:null,
+  tick:0, speed:28,
+  lines:0,
+  running:false
+};
+const tetros = [
+  // I, O, T, S, Z, J, L
+  [[1,1,1,1]],
+  [[1,1],[1,1]],
+  [[0,1,0],[1,1,1]],
+  [[0,1,1],[1,1,0]],
+  [[1,1,0],[0,1,1]],
+  [[1,0,0],[1,1,1]],
+  [[0,0,1],[1,1,1]],
+];
+
+function startTetris(){
+  t.canvas = document.getElementById("tCanvas");
+  t.ctx = t.canvas.getContext("2d");
+  t.board = Array.from({length:t.rows}, ()=>Array(t.cols).fill(0));
+  t.lines = 0;
+  t.running = true;
+  document.getElementById("tMsg").textContent = "";
+  spawnPiece();
+  loopT();
+}
+
+function spawnPiece(){
+  const shape = JSON.parse(JSON.stringify(tetros[Math.floor(Math.random()*tetros.length)]));
+  t.cur = { shape, x: Math.floor((t.cols-shape[0].length)/2), y:0 };
+  if(collide(t.cur.x,t.cur.y,t.cur.shape)){
+    t.running=false;
+    document.getElementById("tMsg").textContent = "Game over. Tap Reset or revisit Level 2. / 结束了，重进第二关。";
+  }
+}
+function collide(x,y,shape){
+  for(let r=0;r<shape.length;r++){
+    for(let c=0;c<shape[r].length;c++){
+      if(!shape[r][c]) continue;
+      const nx=x+c, ny=y+r;
+      if(nx<0||nx>=t.cols||ny>=t.rows) return true;
+      if(ny>=0 && t.board[ny][nx]) return true;
+    }
+  }
+  return false;
+}
+function merge(){
+  const {x,y,shape}=t.cur;
+  for(let r=0;r<shape.length;r++){
+    for(let c=0;c<shape[r].length;c++){
+      if(shape[r][c]){
+        const ny=y+r, nx=x+c;
+        if(ny>=0) t.board[ny][nx]=1;
+      }
+    }
+  }
+}
+function clearLines(){
+  let cleared=0;
+  for(let r=t.rows-1;r>=0;r--){
+    if(t.board[r].every(v=>v===1)){
+      t.board.splice(r,1);
+      t.board.unshift(Array(t.cols).fill(0));
+      cleared++;
+      r++;
+    }
+  }
+  if(cleared){
+    t.lines += cleared;
+    document.getElementById("tLines").textContent = `Lines: ${t.lines} / 5`;
+    toast(`+${cleared} lines`, `消除 ${cleared} 行`);
+    if(t.lines>=5){
+      t.running=false;
+      completeLevel(2, "第二个线索：是不是以为这就结束了？继续吧");
+    }
+  }
+}
+function drawT(){
+  const ctx=t.ctx;
+  ctx.clearRect(0,0,t.canvas.width,t.canvas.height);
+
+  // scale to canvas size
+  const w=t.canvas.width, h=t.canvas.height;
+  const cell = Math.floor(Math.min(w/(t.cols+2), h/(t.rows+2)));
+  const ox = Math.floor((w - cell*t.cols)/2);
+  const oy = Math.floor((h - cell*t.rows)/2);
+
+  // board
+  for(let r=0;r<t.rows;r++){
+    for(let c=0;c<t.cols;c++){
+      ctx.strokeStyle="rgba(120,200,255,.15)";
+      ctx.strokeRect(ox+c*cell, oy+r*cell, cell, cell);
+      if(t.board[r][c]){
+        ctx.fillStyle="rgba(111,227,255,.35)";
+        ctx.fillRect(ox+c*cell+1, oy+r*cell+1, cell-2, cell-2);
+      }
+    }
+  }
+  // piece
+  const {x,y,shape}=t.cur;
+  ctx.fillStyle="rgba(99,255,154,.35)";
+  for(let r=0;r<shape.length;r++){
+    for(let c=0;c<shape[r].length;c++){
+      if(shape[r][c]){
+        ctx.fillRect(ox+(x+c)*cell+1, oy+(y+r)*cell+1, cell-2, cell-2);
+      }
+    }
+  }
+}
+function stepT(){
+  if(!t.running) return;
+  t.tick++;
+  if(t.tick % t.speed === 0){
+    if(!collide(t.cur.x, t.cur.y+1, t.cur.shape)){
+      t.cur.y++;
+    }else{
+      merge();
+      clearLines();
+      spawnPiece();
+    }
+  }
+  drawT();
+}
+function loopT(){
+  if(!document.getElementById("l2").classList.contains("active")) return;
+  stepT();
+  requestAnimationFrame(loopT);
+}
+function tMove(dx){
+  if(!t.running) return;
+  const nx=t.cur.x+dx;
+  if(!collide(nx,t.cur.y,t.cur.shape)) t.cur.x=nx;
+}
+function rotate(shape){
+  const rows=shape.length, cols=shape[0].length;
+  const res=Array.from({length:cols},()=>Array(rows).fill(0));
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) res[c][rows-1-r]=shape[r][c];
+  return res;
+}
+function tRotate(){
+  if(!t.running) return;
+  const ns=rotate(t.cur.shape);
+  if(!collide(t.cur.x,t.cur.y,ns)) t.cur.shape=ns;
+}
+function tDrop(){
+  if(!t.running) return;
+  while(!collide(t.cur.x,t.cur.y+1,t.cur.shape)) t.cur.y++;
+}
+
+/* =======================
+   LEVEL 3: MATCH PHOTOS to locations
+   from PROCESS.docx:
+   photo1 Las Vegas
+   photo2 Los Angelas
+   photo3 Miami
+   photo4 San Antonio
+======================= */
+const places = ["Las Vegas","Los Angelas","Miami","San Antonio"];
+const correctMap = {
+  photo1: "Las Vegas",
+  photo2: "Los Angelas",
+  photo3: "Miami",
+  photo4: "San Antonio",
+};
+function startMatch(){
+  const grid=document.getElementById("matchGrid");
+  document.getElementById("matchMsg").textContent="";
+  grid.innerHTML="";
+
+  ["photo1","photo2","photo3","photo4"].forEach((pid,idx)=>{
+    const card=document.createElement("div");
+    card.className="photoCard";
+    card.innerHTML=`
+      <img src="images/${pid}.jpg" alt="${pid}">
+      <div class="p">
+        <div style="font-weight:950;">Photo ${idx+1}</div>
+        <select id="sel_${pid}">
+          <option value="">Select / 选择</option>
+          ${places.map(p=>`<option value="${p}">${p}</option>`).join("")}
+        </select>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function checkMatch(){
+  let ok=true;
+  ["photo1","photo2","photo3","photo4"].forEach(pid=>{
+    const v=document.getElementById("sel_"+pid).value;
+    if(v!==correctMap[pid]) ok=false;
+  });
+  const msg=document.getElementById("matchMsg");
+  if(ok){
+    completeLevel(3, "第三个线索：麻烦你拿一包抽纸吧，需要长方形的。");
+  }else{
+    msg.textContent="Not quite. Try again. / 还不对，再想想。";
+    toast("Try again.", "不对哦");
+  }
+}
+
+/* =======================
+   LEVEL 4: PAC-LITE (eat 20 dots)
+======================= */
+const p = {
+  canvas:null, ctx:null,
+  grid:12,
+  x:0, y:0,
+  dots:new Set(),
+  eaten:0,
+  goal:20
+};
+function startPac(){
+  p.canvas=document.getElementById("pCanvas");
+  p.ctx=p.canvas.getContext("2d");
+  p.x=0; p.y=0;
+  p.dots=new Set();
+  p.eaten=0;
+  document.getElementById("pDots").textContent = `Dots: 0 / ${p.goal}`;
+  document.getElementById("pMsg").textContent = "";
+
+  // place dots randomly
+  for(let i=0;i<35;i++){
+    const dx=Math.floor(Math.random()*p.grid);
+    const dy=Math.floor(Math.random()*p.grid);
+    if(dx===0 && dy===0) continue;
+    p.dots.add(dx+","+dy);
+  }
+  drawPac();
+}
+function pMove(dx,dy){
+  const nx=p.x+dx, ny=p.y+dy;
+  if(nx<0||nx>=p.grid||ny<0||ny>=p.grid) return;
+  p.x=nx; p.y=ny;
+  const key=nx+","+ny;
+  if(p.dots.has(key)){
+    p.dots.delete(key);
+    p.eaten++;
+    document.getElementById("pDots").textContent = `Dots: ${p.eaten} / ${p.goal}`;
+    if(p.eaten>=p.goal){
+      completeLevel(4, "第四个线索：哎还差点什么呢，看看行李箱的 closet 里有什么吧");
+      return;
+    }
+  }
+  drawPac();
+}
+function drawPac(){
+  const ctx=p.ctx;
+  const w=p.canvas.width, h=p.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const cell=Math.floor(w/p.grid);
+
+  // grid
+  for(let r=0;r<p.grid;r++){
+    for(let c=0;c<p.grid;c++){
+      ctx.strokeStyle="rgba(120,200,255,.10)";
+      ctx.strokeRect(c*cell, r*cell, cell, cell);
+    }
+  }
+  // dots
+  ctx.fillStyle="rgba(111,227,255,.55)";
+  p.dots.forEach(s=>{
+    const [cx,cy]=s.split(",").map(Number);
+    ctx.beginPath();
+    ctx.arc(cx*cell+cell/2, cy*cell+cell/2, Math.max(2,Math.floor(cell*0.12)), 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // player
+  ctx.fillStyle="rgba(99,255,154,.75)";
+  ctx.beginPath();
+  ctx.arc(p.x*cell+cell/2, p.y*cell+cell/2, Math.floor(cell*0.35), 0, Math.PI*2);
+  ctx.fill();
+}
+
+/* =======================
+   LEVEL 5: GOLD MINER (lite)
+   Reach $500
+======================= */
+const g = {
+  canvas:null, ctx:null,
+  money:0, goal:500,
+  coins:[],
+  hook:{x:180,y:60,angle:0,dir:1,len:40,state:"swing"}, // state: swing/extend/retract
+  hit:null
+};
+function startGold(){
+  g.canvas=document.getElementById("gCanvas");
+  g.ctx=g.canvas.getContext("2d");
+  g.money=0;
+  document.getElementById("gMoney").textContent = `$0 / $${g.goal}`;
+  document.getElementById("gMsg").textContent = "";
+  g.hook={x:180,y:60,angle:0,dir:1,len:40,state:"swing"};
+  g.hit=null;
+  g.coins=[];
+  // random coins
+  for(let i=0;i<8;i++){
+    g.coins.push({
+      x:40+Math.random()*280,
+      y:160+Math.random()*220,
+      v: 50 + Math.floor(Math.random()*150),
+      r: 10 + Math.random()*12
+    });
+  }
+  loopGold();
+}
+function gCast(){
+  if(g.hook.state!=="swing") return;
+  g.hook.state="extend";
+}
+function loopGold(){
+  if(!document.getElementById("l5").classList.contains("active")) return;
+  stepGold();
+  drawGold();
+  requestAnimationFrame(loopGold);
+}
+function stepGold(){
+  const h=g.hook;
+  if(h.state==="swing"){
+    h.angle += 0.02*h.dir;
+    if(h.angle>0.9) h.dir=-1;
+    if(h.angle<-0.9) h.dir=1;
+  }else if(h.state==="extend"){
+    h.len += 6;
+    // collision check
+    const tip = hookTip();
+    for(const c of g.coins){
+      const dx=tip.x-c.x, dy=tip.y-c.y;
+      if(Math.sqrt(dx*dx+dy*dy) < c.r+6){
+        g.hit=c;
+        h.state="retract";
+        return;
+      }
+    }
+    if(h.len>320) h.state="retract";
+  }else if(h.state==="retract"){
+    h.len -= g.hit ? 4 : 7;
+    if(h.len<=40){
+      h.len=40;
+      h.state="swing";
+      if(g.hit){
+        g.money += g.hit.v;
+        g.coins = g.coins.filter(x=>x!==g.hit);
+        g.hit=null;
+        document.getElementById("gMoney").textContent = `$${g.money} / $${g.goal}`;
+        toast("+$"+g.money, "赚钱了");
+        if(g.money>=g.goal){
+          completeLevel(5, "准备好一夜暴富了吗？找到之后等我回家吧！");
+        }
+      }
+    }
+  }
+}
+function hookTip(){
+  const h=g.hook;
+  return {
+    x: h.x + Math.sin(h.angle)*h.len,
+    y: h.y + Math.cos(h.angle)*h.len
+  };
+}
+function drawGold(){
+  const ctx=g.ctx;
+  const w=g.canvas.width, h=g.canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  // background
+  ctx.fillStyle="rgba(10,28,45,.25)";
+  ctx.fillRect(0,0,w,h);
+
+  // coins
+  for(const c of g.coins){
+    ctx.fillStyle="rgba(255,211,111,.65)";
+    ctx.beginPath();
+    ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle="rgba(0,0,0,.35)";
+    ctx.font="12px "+getComputedStyle(document.body).fontFamily;
+    ctx.fillText("$"+c.v, c.x-c.r, c.y+c.r+12);
+  }
+
+  // hook line
+  const tip=hookTip();
+  ctx.strokeStyle="rgba(111,227,255,.65)";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(g.hook.x,g.hook.y);
+  ctx.lineTo(tip.x,tip.y);
+  ctx.stroke();
+
+  // hook tip
+  ctx.fillStyle="rgba(111,227,255,.85)";
+  ctx.beginPath();
+  ctx.arc(tip.x,tip.y,6,0,Math.PI*2);
+  ctx.fill();
+
+  // diver icon (simple)
+  ctx.fillStyle="rgba(99,255,154,.55)";
+  ctx.fillRect(g.hook.x-12, g.hook.y-18, 24, 24);
+  ctx.fillStyle="rgba(0,0,0,.25)";
+  ctx.fillRect(g.hook.x-8, g.hook.y-12, 16, 8);
+}
+
+/* =======================
+   LEVEL 6: FINAL PUZZLE
+   Drag tiles to slots => “生日快乐”
+======================= */
+const finalWord = ["生","日","快","乐"];
+let finalSlots = ["","","",""];
+let dragging = null;
+
+function startFinal(){
+  document.getElementById("finalMsg").textContent = "";
+  finalSlots = ["","","",""];
+  renderFinal();
+}
+function renderFinal(){
+  const tilesEl=document.getElementById("tiles");
+  const slotsEl=document.getElementById("slots");
+  tilesEl.innerHTML="";
+  slotsEl.innerHTML="";
+
+  // tiles (shuffled)
+  const tiles = [...finalWord].sort(()=>Math.random()-0.5);
+  tiles.forEach(ch=>{
+    const t=document.createElement("div");
+    t.className="tile";
+    t.textContent=ch;
+    t.draggable=true;
+    t.ondragstart=(e)=>{ dragging=ch; e.dataTransfer.setData("text/plain", ch); };
+    tilesEl.appendChild(t);
+  });
+
+  for(let i=0;i<4;i++){
+    const s=document.createElement("div");
+    s.className="slot"+(finalSlots[i] ? " filled":"");
+    s.textContent = finalSlots[i] || "";
+    s.ondragover=(e)=>e.preventDefault();
+    s.ondrop=(e)=>{
+      e.preventDefault();
+      const ch=e.dataTransfer.getData("text/plain") || dragging;
+      finalSlots[i]=ch;
+      s.textContent=ch;
+      s.classList.add("filled");
+    };
+    slotsEl.appendChild(s);
+  }
+}
+function checkFinal(){
+  const ok = finalSlots.join("") === finalWord.join("");
+  if(ok){
+    state.levelDone[6]=true;
+    state.clues.push("最终线索：完成寻宝后，去你最熟悉的地方把礼物拿出来。然后等我带蛋糕回家。");
+    save();
+    document.getElementById("finalMsg").innerHTML =
+      `<div style="font-weight:950; font-size:22px; color: var(--good);">生日快乐</div>
+       <div class="mini" style="margin-top:8px;">
+         最终线索已解锁（已写进 Home 的 Clues）<br/>
+         Final clue unlocked (see Home → Clues)
+       </div>`;
+    toast("Puzzle solved.", "✅ 拼好了");
+  }else{
+    toast("Not yet.", "还差一点");
+  }
+}
+
+/* =======================
+   INIT
+======================= */
+function nextIfAny(){ return state.last || nextLevel(); }
+
+(function init(){
+  syncHome();
+})();
+</script>
+</body>
+</html>
