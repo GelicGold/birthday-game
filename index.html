@@ -1,21 +1,33 @@
 <!doctype html>
 <html lang="zh">
 <head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Treasure Dive · Birthday Hunt</title>
   <style>
     :root{
-      --bg1:#061524; --bg2:#040b12;
-      --card: rgba(9, 30, 52, .78);
-      --line: rgba(120, 200, 255, .25);
-      --text:#eaf4ff; --muted:#b9c9e6;
-      --accent:#6fe3ff; --good:#63ff9a; --bad:#ff6f8c; --warn:#ffd36f;
-      --shadow: 0 16px 44px rgba(0,0,0,.45);
-      --r: 18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
+  --bg1:#071b2b;        /* deep ocean */
+  --bg2:#030914;        /* abyss */
+  --card: rgba(8, 26, 44, .78);
+  --line: rgba(84, 214, 255, .22);
+
+  --text:#e9fbff;
+  --muted:#a9d7e6;
+
+  --accent:#59f0ff;     /* neon cyan */
+  --good:#35ff9a;       /* neon green */
+  --warn:#ffcc66;       /* warm gold */
+  --bad:#ff5d7a;        /* coral pink */
+
+  --shadow: 0 18px 50px rgba(0,0,0,.50);
+  --r: 14px;
+  --mono: "Press Start 2P", ui-monospace, monospace;
+  --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -193,7 +205,7 @@
     <div class="top">
       <div class="brand">
         <div class="t">Treasure Dive · Birthday Hunt</div>
-        <div class="s">6 关寻宝 · 只给线索 · 全程无密码（No passcode）</div>
+        <div class="s">6 关寻宝 · 只给线索 </div>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <div class="badge" id="badge">Progress: 0/6</div>
@@ -917,7 +929,7 @@ function stepGold(){
         document.getElementById("gMoney").textContent = `$${g.money} / $${g.goal}`;
         toast("+$"+g.money, "赚钱了");
         if(g.money>=g.goal){
-          completeLevel(5, "准备好一夜暴富了吗？找到之后等我回家吧！");
+          completeLevel(5, "凭借你对我的了解，在家里多找找看吧！");
         }
       }
     }
@@ -1046,3 +1058,4 @@ function nextIfAny(){ return state.last || nextLevel(); }
 </script>
 </body>
 </html>
+
